@@ -78,14 +78,41 @@ Steps:
 
 Phase 0 — foundation.
 
-## Background selection capture (macOS)
+## Running in the background (no VS Code, no terminal kept open)
 
-Highlight any text in any app, then press **⌘⇧A** (Cmd+Shift+A). The app runs entirely in the background — no window focus, no UI changes. The card is generated, saved to Anki, and a native macOS notification confirms the result.
+The app is a true menu bar app — no dock icon, no window on launch. It runs as a background process; you launch it once from the terminal and forget about it.
 
-How it works:
+### Launch
 
-- `src/main/utils/selection.ts` captures the selection via a 3-strategy waterfall: `AXSelectedText` (accessibility API), then synthetic `Cmd+C` via `keystroke`, then synthetic `Cmd+C` via `key code 8`. A clipboard sentinel detects when the synthetic copy silently failed, preventing stale-clipboard false positives.
-- `src/main/ipc/register.ts` runs the full build pipeline directly in the main process (no IPC round-trip to the renderer), then shows a native macOS notification (`Notification` API) with the result.
-- The renderer is untouched during the build — the app stays in the background while you're reading, working, or watching a video.
+```bash
+# One-shot: builds (if needed) and launches detached from the terminal.
+# The process survives shell exit. Click the 'Anki' item in your menu bar
+# to show the window or quit.
+npm run start:detach
+```
 
-First-time setup on macOS: grant Accessibility permission to the Electron-built app under **System Settings → Privacy & Security → Accessibility**. Without it, the synthetic `Cmd+C` and accessibility read both fail and you'll get a *"No selection captured"* notification.
+That script:
+1. Installs dependencies on first run (`npm install`).
+2. Builds the production bundle (`npm run build`) if `out/main/index.js` is missing.
+3. Launches `npm run preview` with `nohup`, redirecting logs to `~/.anki-builder.log` and the PID to `~/.anki-builder.pid`.
+
+### Stop
+
+```bash
+npm run stop
+# or
+kill $(cat ~/.anki-builder.pid)
+```
+
+### Window behavior
+
+- The window is hidden on launch. The tray (menu bar) icon reads `Anki`.
+- Click the tray → menu: **Show Window** / **Quit Anki Builder**.
+- Closing the window with `⌘W` or the red dot **hides** it — the process keeps running so `⌘⇧A` keeps working.
+- The dock icon is hidden via `app.dock.hide()`. The app only shows up in the menu bar.
+
+### Selection capture still works
+
+Once the background process is up, press `⌘⇧A` anywhere on your Mac. You'll get one native macOS notification at the end (`Saved:`, `Duplicate:`, `Failed:`, etc.) and the card will be in your Anki deck.
+
+First-time setup on macOS: grant Accessibility permission to the Electron-built app under **System Settings → Privacy & Security → Accessibility**.

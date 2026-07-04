@@ -9,6 +9,8 @@
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
+    "start:detach": "bash scripts/start-detached.sh",
+    "stop": "if [ -f $HOME/.anki-builder.pid ]; then kill $(cat $HOME/.anki-builder.pid) && rm $HOME/.anki-builder.pid && echo 'Stopped.'; else echo 'Not running.'; fi",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
