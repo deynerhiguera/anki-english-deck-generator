@@ -5,8 +5,15 @@ import { ModelFields } from '@renderer/components/ConnectionStatus/ModelFields';
 import { WordInput } from '@renderer/components/WordInput/WordInput';
 import { CardPreview } from '@renderer/components/CardPreview/CardPreview';
 import { Toast, type ToastState } from '@renderer/components/Toast/Toast';
+import { SelectionCaptureHint } from '@renderer/components/SelectionCaptureHint/SelectionCaptureHint';
 import { useCardBuilder, type BuildSlot } from '@renderer/hooks/useCardBuilder';
+import { looksLikeWord } from '@renderer/utils/wordShape';
 import './styles/globals.css';
+
+function truncateError(msg: string, max = 140): string {
+  if (msg.length <= max) return msg;
+  return msg.slice(0, max - 1) + '…';
+}
 
 function App(): JSX.Element {
   const [appInfo, setAppInfo] = useState<AppReadyResponse | null>(null);
@@ -24,6 +31,25 @@ function App(): JSX.Element {
   }, []);
 
   useEffect(() => {
+    const offSelection = window.ankiBuilder.card.onGenerateFromSelection((evt) => {
+      if (!evt.text) return;
+      const check = looksLikeWord(evt.text);
+      if (!check.ok) {
+        setToast({ kind: 'error', message: check.message ?? 'Invalid selection.' });
+        return;
+      }
+      builder.addWord(evt.text);
+    });
+    const offError = window.ankiBuilder.card.onSelectionCaptureError((evt) => {
+      setToast({ kind: 'error', message: evt.message });
+    });
+    return () => {
+      offSelection();
+      offError();
+    };
+  }, [builder]);
+
+  useEffect(() => {
     const okCount = builder.queue.filter((s) => s.status === 'done' && s.noteId !== undefined).length;
     const failCount = builder.queue.filter((s) => s.status === 'failed').length;
     if (okCount + failCount === builder.queue.length && builder.queue.length > 0 && !builder.busy) {
@@ -32,15 +58,21 @@ function App(): JSX.Element {
           kind: 'success',
           message: `Auto-saved ${okCount} card${okCount === 1 ? '' : 's'} to Anki.`,
         });
-      } else if (okCount > 0 && failCount > 0) {
+        return;
+      }
+
+      const firstFail = builder.queue.find((s) => s.status === 'failed');
+      const reason = truncateError(firstFail?.error ?? 'unknown error');
+
+      if (okCount > 0 && failCount > 0) {
         setToast({
           kind: 'error',
-          message: `${okCount} saved, ${failCount} failed. Click "Retry save" on failed cards.`,
+          message: `${okCount} saved, ${failCount} failed. Reason: ${reason}`,
         });
       } else if (failCount > 0) {
         setToast({
           kind: 'error',
-          message: `All ${failCount} card${failCount === 1 ? '' : 's'} failed to save. Check Anki connection and click "Retry save".`,
+          message: `All ${failCount} card${failCount === 1 ? '' : 's'} failed: ${reason}`,
         });
       }
     }
@@ -76,6 +108,7 @@ function App(): JSX.Element {
             onGenerate={(words) => builder.start(words)}
             busy={builder.busy}
           />
+          <SelectionCaptureHint />
         </section>
 
         {builder.queue.length > 0 && (
@@ -111,7 +144,7 @@ function App(): JSX.Element {
         )}
 
         <div className="phase-banner">
-          <strong>Phase 3 — Audio + Auto-save.</strong> Every generated card is automatically added to Anki. Audio generated with nova voice, mirrored in <code>./media/</code>, copied to Anki's <code>collection.media/</code>.
+          <strong>Phase 4 — Selection capture.</strong> Highlight any text on macOS and press <kbd>⌘⇧A</kbd> to start building a card. Every generated card is automatically added to Anki. Audio generated with nova voice, mirrored in <code>./media/</code>, copied to Anki's <code>collection.media/</code>.
         </div>
       </main>
       <Toast toast={toast} onDismiss={() => setToast(null)} />

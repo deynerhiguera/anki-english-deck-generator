@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { logger } from './utils/logger';
 import { createMainWindow } from './window';
-import { registerIpcHandlers } from './ipc/register';
+import { registerIpcHandlers, registerSelectionCapture } from './ipc/register';
 
 const candidates = [
   join(process.cwd(), '.env'),
@@ -30,11 +30,14 @@ process.on('unhandledRejection', (reason) => {
 app.whenReady().then(() => {
   const win = createMainWindow();
   registerIpcHandlers(win);
+  registerSelectionCapture();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       const newWin = createMainWindow();
       registerIpcHandlers(newWin);
+    } else {
+      registerSelectionCapture();
     }
   });
 });

@@ -2,8 +2,8 @@ import { resolve } from 'node:path';
 import type { Card } from '@shared/domain/Card';
 import { DefaultCardValidator, type CardValidator } from '@shared/domain/CardValidator';
 import {
+  AppError,
   ValidationError,
-  type AppError,
 } from '@shared/domain/errors';
 import { OpenAIClient } from '../infrastructure/openai/OpenAIClient';
 import { AudioStorage } from '../infrastructure/storage/AudioStorage';
@@ -125,6 +125,9 @@ export class CardBuilder {
         const finalized = await this.runAudioAndStorage(card, onProgress);
         return await this.runAnkiSave(finalized, onProgress);
       } catch (err) {
+        if (err instanceof AppError) {
+          throw err;
+        }
         throw new ValidationError(
           `Card accepted with warnings but post-processing failed: ${(err as Error).message}`,
           ['Q-RETRIES-EXHAUSTED'],

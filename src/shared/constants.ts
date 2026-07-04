@@ -1,6 +1,8 @@
 export const APP_NAME = 'Personal AI Anki Builder';
 export const APP_VERSION = '0.1.0';
 
+export const SELECTION_CAPTURE_SHORTCUT = 'CommandOrControl+Shift+A';
+
 export const SPANISH_STOPWORDS: readonly string[] = [
   'el', 'la', 'lo', 'los', 'las', 'de', 'del', 'que', 'con', 'para',
   'por', 'sin', 'una', 'uno', 'es', 'son', 'está', 'están',

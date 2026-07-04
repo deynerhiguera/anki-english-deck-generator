@@ -15,6 +15,7 @@ export interface UseCardBuilder {
   queue: BuildSlot[];
   busy: boolean;
   start(words: string[]): void;
+  addWord(word: string): void;
   reset(): void;
   retrySave(word: string): Promise<void>;
 }
@@ -91,6 +92,15 @@ export function useCardBuilder(): UseCardBuilder {
     [runOne],
   );
 
+  const addWord = useCallback(
+    (word: string) => {
+      const trimmed = word.trim();
+      if (!trimmed) return;
+      start([trimmed]);
+    },
+    [start],
+  );
+
   const retrySave = useCallback(async (word: string): Promise<void> => {
     const slot = queue.find((s) => s.word === word);
     if (!slot?.card) return;
@@ -122,5 +132,5 @@ export function useCardBuilder(): UseCardBuilder {
     setBusy(false);
   }, []);
 
-  return { queue, busy, start, reset, retrySave };
+  return { queue, busy, start, addWord, reset, retrySave };
 }

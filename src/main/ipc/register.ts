@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ipcMain, BrowserWindow } from 'electron';
+import { ipcMain, BrowserWindow, app, globalShortcut } from 'electron';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 import {
@@ -13,9 +13,11 @@ import {
   type AppReadyResponse,
   type CardGenerateRequest,
   type CardGenerateResponse,
+  type SelectionCaptureError,
+  type SelectionCaptureEvent,
 } from '@shared/types/ipc';
 import type { ProgressEvent } from '@shared/types/progress';
-import { APP_NAME, APP_VERSION } from '@shared/constants';
+import { APP_NAME, APP_VERSION, SELECTION_CAPTURE_SHORTCUT } from '@shared/constants';
 import { loadEnv } from '../config/env';
 import { AnkiClient } from '../infrastructure/anki/AnkiClient';
 import { OpenAIClient } from '../infrastructure/openai/OpenAIClient';
@@ -37,6 +39,7 @@ import {
   serializeError,
 } from '@shared/domain/errors';
 import { logger } from '../utils/logger';
+import { captureSelectedText } from '../utils/selection';
 
 let cachedAnkiClient: { url: string; client: AnkiClient } | null = null;
 let cachedOpenAIClient: OpenAIClient | null = null;
@@ -87,6 +90,82 @@ function sendProgress(win: BrowserWindow, event: ProgressEvent): void {
   if (!win.isDestroyed()) {
     win.webContents.send(IPC.CARD_GENERATE_PROGRESS, event);
   }
+}
+
+function sendSelectionCapture(win: BrowserWindow, event: SelectionCaptureEvent): void {
+  if (!win.isDestroyed()) {
+    win.webContents.send(IPC.CARD_GENERATE_FROM_SELECTION, event);
+  }
+}
+
+function sendSelectionCaptureError(win: BrowserWindow, event: SelectionCaptureError): void {
+  if (!win.isDestroyed()) {
+    win.webContents.send(IPC.SELECTION_CAPTURE_ERROR, event);
+  }
+}
+
+async function handleSelectionCapture(win: BrowserWindow): Promise<void> {
+  if (win.isDestroyed()) return;
+
+  const result = await captureSelectedText();
+
+  if (win.isDestroyed()) return;
+
+  if (win.isMinimized()) win.restore();
+  if (!win.isVisible()) win.show();
+  app.focus({ steal: true });
+
+  if (result.text) {
+    logger.info('Selection captured via', result.method ?? '?', ':', result.text.slice(0, 60));
+    sendSelectionCapture(win, {
+      text: result.text,
+      source: 'shortcut',
+      capturedAt: Date.now(),
+    });
+    return;
+  }
+
+  const reason: SelectionCaptureError['reason'] = result.reason ?? 'error';
+  sendSelectionCaptureError(win, {
+    reason,
+    message: result.message ?? 'Could not capture selection.',
+  });
+}
+
+let selectionShortcutRegistered = false;
+
+export function registerSelectionCapture(): void {
+  if (selectionShortcutRegistered) return;
+  if (process.platform !== 'darwin') {
+    logger.info('Selection capture shortcut skipped (non-darwin platform).');
+    return;
+  }
+
+  const ok = globalShortcut.register(SELECTION_CAPTURE_SHORTCUT, () => {
+    const win = BrowserWindow.getAllWindows().find((w) => !w.isDestroyed());
+    if (!win) {
+      logger.warn('Selection shortcut pressed but no window is available.');
+      return;
+    }
+    void handleSelectionCapture(win);
+  });
+
+  if (!ok) {
+    logger.warn(
+      `Failed to register global shortcut ${SELECTION_CAPTURE_SHORTCUT}. It may already be in use by another app.`,
+    );
+    return;
+  }
+
+  selectionShortcutRegistered = true;
+  logger.info(`Global shortcut ${SELECTION_CAPTURE_SHORTCUT} registered for selection capture.`);
+
+  app.on('will-quit', () => {
+    if (selectionShortcutRegistered) {
+      globalShortcut.unregister(SELECTION_CAPTURE_SHORTCUT);
+      selectionShortcutRegistered = false;
+    }
+  });
 }
 
 export function registerIpcHandlers(win: BrowserWindow): void {
@@ -229,10 +308,19 @@ function humanizeError(err: unknown): string {
     return `OpenAI network error: ${err.message}`;
   }
   if (err instanceof ValidationError) {
-    return `Validation failed: ${err.failedRules.join(', ')}`;
+    if (err.failedRules.includes('Q-RETRIES-EXHAUSTED')) {
+      return 'Could not generate a valid card after several attempts. The selected text is probably not a vocabulary word (e.g., a file path, URL, code, or proper noun). Try a single word or short phrase.';
+    }
+    return `Card validation failed (${err.failedRules.join(', ')}). The selected text might not be a usable vocabulary word.`;
+  }
+  if (err instanceof AnkiNotRunningError) {
+    return 'Anki is not running or AnkiConnect is unreachable. Start Anki with the AnkiConnect plugin enabled, then click "Retry save".';
   }
   if (err instanceof AnkiModelNotFoundError) {
-    return err.message;
+    return `${err.message} — then click "Retry save".`;
+  }
+  if (err instanceof AnkiAddNoteError) {
+    return `Could not save to Anki: ${err.message}. Check the deck/model setup, then click "Retry save".`;
   }
   if (err instanceof ConfigError) {
     return `Configuration error: ${err.message}`;

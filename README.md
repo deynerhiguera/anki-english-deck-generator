@@ -77,3 +77,15 @@ Steps:
 ## Status
 
 Phase 0 — foundation.
+
+## Selection capture (macOS)
+
+Highlight any text in any app, then press **⌘⇧A** (Cmd+Shift+A) to start building a card from it. The window comes to the front, the captured text is added to the queue, and the existing pipeline generates the card and auto-saves it to Anki.
+
+How it works:
+
+- `main/utils/selection.ts` sends a synthetic `Cmd+C` via `osascript`, reads the clipboard, and restores the previous clipboard contents.
+- The main process broadcasts the captured text to the renderer over IPC (`CARD_GENERATE_FROM_SELECTION`).
+- The renderer feeds the text to `useCardBuilder.addWord(...)` and reuses the same progress + auto-save flow as the manual input.
+
+First-time setup on macOS: grant Accessibility permission to the Electron-built app under **System Settings → Privacy & Security → Accessibility**. The hint banner inside the app surfaces this when the OS blocks the synthetic keystroke.

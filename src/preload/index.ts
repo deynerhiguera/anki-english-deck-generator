@@ -12,6 +12,8 @@ import {
   type CardGenerateRequest,
   type CardGenerateResponse,
   type RendererApi,
+  type SelectionCaptureError,
+  type SelectionCaptureEvent,
 } from '@shared/types/ipc';
 import type { ProgressEvent } from '@shared/types/progress';
 
@@ -35,6 +37,18 @@ const api: RendererApi = {
       const listener = (_e: Electron.IpcRendererEvent, payload: ProgressEvent): void => cb(payload);
       ipcRenderer.on(IPC.CARD_GENERATE_PROGRESS, listener);
       return () => ipcRenderer.removeListener(IPC.CARD_GENERATE_PROGRESS, listener);
+    },
+    onGenerateFromSelection: (cb: (event: SelectionCaptureEvent) => void) => {
+      const listener = (_e: Electron.IpcRendererEvent, payload: SelectionCaptureEvent): void =>
+        cb(payload);
+      ipcRenderer.on(IPC.CARD_GENERATE_FROM_SELECTION, listener);
+      return () => ipcRenderer.removeListener(IPC.CARD_GENERATE_FROM_SELECTION, listener);
+    },
+    onSelectionCaptureError: (cb: (event: SelectionCaptureError) => void) => {
+      const listener = (_e: Electron.IpcRendererEvent, payload: SelectionCaptureError): void =>
+        cb(payload);
+      ipcRenderer.on(IPC.SELECTION_CAPTURE_ERROR, listener);
+      return () => ipcRenderer.removeListener(IPC.SELECTION_CAPTURE_ERROR, listener);
     },
   },
 };
