@@ -1,0 +1,211 @@
+{
+  "schema_version": "1.2",
+  "description": "Representative card dataset for the Personal AI Anki Builder. NOT a copy of the user's real cards. Each entry follows style-guide.md and passes quality-checklist.md. Pronoun distribution per style-guide §4 (60% I / 20% We / 10% You / 10% Other) targets a 10-card batch: 6 I, 2 We, 1 You, 1 Other. Every example satisfies the 30-day rule and is reusable across conversations. Cloze field uses literal ______ underscore fill-in-the-blank (matching the user's existing 'English Active Recall' model, which is a regular Question/Answer template, not an Anki Cloze type).",
+  "pronoun_distribution_target": {
+    "I": "60%",
+    "We": "20%",
+    "You": "10%",
+    "Other": "10%"
+  },
+  "cards": [
+    {
+      "id": "ex-001",
+      "word": "to stick to",
+      "ipa": "/tə stɪk tu/",
+      "meaning": "to continue doing something despite difficulties or to follow a plan or principle",
+      "example": "I need to stick to my coding routine even when I don't feel motivated.",
+      "cloze": "I need to ______ my coding routine even when I don't feel motivated.",
+      "sound_filename": "to stick to-1777658396030.mp3",
+      "pronoun": "I",
+      "topic_cluster": "E",
+      "topic_tags": [
+        "discipline",
+        "coding-routine",
+        "mindset"
+      ],
+      "rationale": "Personal habit card. Reusable across any check-in conversation. Subject is the user (I) — matches share target. Within 30 days: yes, this is a daily cadence check."
+    },
+    {
+      "id": "ex-002",
+      "word": "to debug",
+      "ipa": "/tə dɪˈbʌɡ/",
+      "meaning": "to find and fix errors in code or a system",
+      "example": "I need to debug this race condition before we ship the patch.",
+      "cloze": "I need to ______ this race condition before we ship the patch.",
+      "sound_filename": "to debug-1777658400000.mp3",
+      "pronoun": "I",
+      "topic_cluster": "A",
+      "topic_tags": [
+        "software-engineering",
+        "debugging",
+        "shipping"
+      ],
+      "rationale": "Pure cluster A. Sentence the user would literally say this sprint. Reusable: drop-in phrase for any standup or PR review."
+    },
+    {
+      "id": "ex-003",
+      "word": "to come up with",
+      "ipa": "/tə kʌm ʌp wɪð/",
+      "meaning": "to produce an idea, plan, or solution when one is needed",
+      "example": "We need to come up with a better strategy for our weekly code reviews.",
+      "cloze": "We need to ______ a better strategy for our weekly code reviews.",
+      "sound_filename": "to come up with-1777658402000.mp3",
+      "pronoun": "We",
+      "topic_cluster": "A",
+      "topic_tags": [
+        "strategy",
+        "team-work",
+        "code-reviews"
+      ],
+      "rationale": "We-pronoun card. Real team artifact (weekly code reviews). Generic enough to drop into any planning meeting conversation."
+    },
+    {
+      "id": "ex-004",
+      "word": "forge",
+      "ipa": "/fɔrdʒ/",
+      "meaning": "to create something strong through effort or to shape metal with heat",
+      "example": "I forged a small CLI tool that saves me time every morning.",
+      "cloze": "I ______ a small CLI tool that saves me time every morning.",
+      "sound_filename": "forge-1777658401000.mp3",
+      "pronoun": "I",
+      "topic_cluster": "D",
+      "topic_tags": [
+        "side-project",
+        "personal-tool",
+        "morning-routine"
+      ],
+      "rationale": "Past-tense forge framed as recent accomplishment. Cluster D (personal projects). Reusable: 'I forged X' works for anything you build."
+    },
+    {
+      "id": "ex-005",
+      "word": "steadily",
+      "ipa": "/ˈstɛd·ə·li/",
+      "meaning": "in a regular or even manner; without sudden changes",
+      "example": "I trained steadily for six months before hitting my first deadlift PR.",
+      "cloze": "I trained ______ for six months before hitting my first deadlift PR.",
+      "sound_filename": "steadily-1777658403000.mp3",
+      "pronoun": "I",
+      "topic_cluster": "F",
+      "topic_tags": [
+        "gym",
+        "discipline",
+        "long-term"
+      ],
+      "rationale": "Cluster F (body/gym). Sentence reusable in any gym conversation: 'I've been training steadily'."
+    },
+    {
+      "id": "ex-006",
+      "word": "reluctant",
+      "ipa": "/rɪˈlʌk·tənt/",
+      "meaning": "not willing to do something; hesitant even when expected to act",
+      "example": "You don't have to feel reluctant to ask for help when you're stuck on a problem.",
+      "cloze": "You don't have to feel ______ to ask for help when you're stuck on a problem.",
+      "sound_filename": "reluctant-1777658404000.mp3",
+      "pronoun": "You",
+      "topic_cluster": "E",
+      "topic_tags": [
+        "advice",
+        "asking-for-help",
+        "mindset"
+      ],
+      "rationale": "You-pronoun card. Generic advice the user could give in a 1:1 or slack thread. Reusable as a coaching phrase."
+    },
+    {
+      "id": "ex-007",
+      "word": "auto-renewal",
+      "ipa": "/ˈɔ·toʊ rɪˈnu·əl/",
+      "meaning": "a setting that automatically continues a subscription or contract without manual action",
+      "example": "I forgot to cancel the auto-renewal on a SaaS subscription I stopped using.",
+      "cloze": "I forgot to cancel the ______ on a SaaS subscription I stopped using.",
+      "sound_filename": "auto-renewal-1777658405000.mp3",
+      "pronoun": "I",
+      "topic_cluster": "A",
+      "topic_tags": [
+        "saas",
+        "subscriptions",
+        "ops"
+      ],
+      "rationale": "Every user with subscriptions hits this. Reusable in any finance/admin conversation."
+    },
+    {
+      "id": "ex-008",
+      "word": "to keep up",
+      "ipa": "/tə kip ʌp/",
+      "meaning": "to stay at the same level or pace as someone or something",
+      "example": "I watch English podcasts to keep up with how people talk in real meetings.",
+      "cloze": "I watch English podcasts to ______ with how people talk in real meetings.",
+      "sound_filename": "to keep up-1777658406000.mp3",
+      "pronoun": "I",
+      "topic_cluster": "C",
+      "topic_tags": [
+        "english-learning",
+        "listening",
+        "natural-speech"
+      ],
+      "rationale": "Cluster C (English learning). Anchored in a habit the user is already doing. Sentence reusable when talking about how the user learns English."
+    },
+    {
+      "id": "ex-009",
+      "word": "to occupy",
+      "ipa": "/tə ˈɑk·jəˌpaɪ/",
+      "meaning": "to fill time or attention, or to take and hold a space",
+      "example": "We let one tiny bug occupy the entire morning before we found the real issue.",
+      "cloze": "We let one tiny bug ______ the entire morning before we found the real issue.",
+      "sound_filename": "to occupy-1777658407000.mp3",
+      "pronoun": "We",
+      "topic_cluster": "A",
+      "topic_tags": [
+        "debugging",
+        "team",
+        "incident"
+      ],
+      "rationale": "We-pronoun card. Cluster A. Reusable in any postmortem conversation: 'X occupied the whole morning'."
+    },
+    {
+      "id": "ex-010",
+      "word": "to nail",
+      "ipa": "/tə neɪl/",
+      "meaning": "to do something very well; to succeed at a task in a complete way",
+      "example": "The team totally nailed the demo and landed three new clients that day.",
+      "cloze": "The team totally ______ the demo and landed three new clients that day.",
+      "sound_filename": "to nail-1777658408000.mp3",
+      "pronoun": "Other",
+      "topic_cluster": "A",
+      "topic_tags": [
+        "demo",
+        "performance",
+        "client-work"
+      ],
+      "rationale": "Other pronoun ('The team') — fills the 10% slot. Reusable as a celebration phrase in any retrospective or wrap-up."
+    }
+  ],
+  "batch_audit": {
+    "card_count": 10,
+    "pronoun_actual": {
+      "I": 6,
+      "We": 2,
+      "You": 1,
+      "Other": 1
+    },
+    "pronoun_actual_pct": {
+      "I": "60%",
+      "We": "20%",
+      "You": "10%",
+      "Other": "10%"
+    },
+    "cluster_distribution": {
+      "A_software_engineering": 5,
+      "B_ai": 0,
+      "C_english_learning": 1,
+      "D_personal_projects": 1,
+      "E_mindset": 2,
+      "F_gym": 1,
+      "G_daily_life": 0
+    },
+    "checks_passed": [
+      "Q46 pronoun distribution: within tolerance",
+      "Q47 template uniqueness: no two consecutive cards share skeleton",
+      "Q48 cluster coverage: Cluster A (5 cards) and Cluster C (1 card) both present"
+    ]
+  }
+}

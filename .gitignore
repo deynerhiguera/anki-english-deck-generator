@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build output
+out/
+dist/
+.vite/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local environment
+.env
+.env.local
+
+# Audio mirror (regenerated each run)
+media/*
+!media/.gitkeep
+
+# OS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/

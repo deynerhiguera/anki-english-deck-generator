@@ -1,0 +1,56 @@
+.model-fields {
+  margin-top: 12px;
+  padding: 12px 16px;
+  border: 1px solid #e5e5ea;
+  border-radius: 8px;
+  background-color: #ffffff;
+  font-size: 13px;
+}
+
+.model-fields-header strong {
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.model-fields-header code {
+  font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+  background-color: #f2f2f7;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.model-fields-loading,
+.model-fields-empty {
+  margin-top: 8px;
+  color: #6e6e73;
+  font-size: 12px;
+}
+
+.model-fields-error {
+  margin-top: 8px;
+  color: #b3261e;
+  font-size: 12px;
+}
+
+.model-fields-list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.model-fields-list li {
+  background-color: #f2f2f7;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+.model-fields-list code {
+  font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 12px;
+  background: none;
+  padding: 0;
+}

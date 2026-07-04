@@ -1,0 +1,260 @@
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
+    'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  color: #1d1d1f;
+  background-color: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 32px 40px;
+  gap: 24px;
+  background-color: #fafafa;
+}
+
+.app-shell header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.app-shell header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.app-shell header p {
+  margin: 0;
+  color: #6e6e73;
+  font-size: 13px;
+}
+
+.app-shell main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background-color: #ffffff;
+  border: 1px solid #e5e5ea;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #6e6e73;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #c7c7cc;
+}
+
+.status-dot.ok {
+  background-color: #34c759;
+}
+
+.status-dot.error {
+  background-color: #ff3b30;
+}
+
+.phase-banner {
+  background-color: #f2f2f7;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #3a3a3c;
+  font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+}
+
+.phase-banner strong {
+  color: #1d1d1f;
+}
+
+.section-title {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6e6e73;
+}
+
+section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.progress-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid #e5e5ea;
+  border-radius: 8px;
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+.progress-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f2f2f7;
+  font-size: 13px;
+}
+
+.progress-row:last-child {
+  border-bottom: none;
+}
+
+.progress-word {
+  font-weight: 500;
+  color: #1d1d1f;
+}
+
+.progress-stage {
+  font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: #6e6e73;
+  text-align: right;
+}
+
+.progress-done {
+  background-color: #f0fbf2;
+}
+
+.progress-done .progress-stage {
+  color: #1d8039;
+}
+
+.progress-failed {
+  background-color: #fff1ef;
+}
+
+.progress-failed .progress-stage {
+  color: #b3261e;
+}
+
+.phase-banner.error {
+  background-color: #fff1ef;
+  color: #b3261e;
+}
+
+.phase-banner.error strong {
+  color: #5a0e0a;
+}
+
+.phase-banner.success {
+  background-color: #e6f7ec;
+  color: #1d8039;
+  margin-top: 12px;
+}
+
+.phase-banner.success strong {
+  color: #14692e;
+}
+
+.cards-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  gap: 12px;
+}
+
+.cards-header h2 {
+  margin: 0;
+}
+
+.save-all-button {
+  appearance: none;
+  background-color: #1d8039;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.save-all-button:disabled {
+  background-color: #c7c7cc;
+  cursor: not-allowed;
+}
+
+.save-all-button:not(:disabled):hover {
+  background-color: #14692e;
+}
+
+.card-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 16px;
+}
+
+.card-row-actions {
+  margin-top: -4px;
+  margin-bottom: 12px;
+}
+
+.saved-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background-color: #e6f7ec;
+  color: #1d8039;
+  border: 1px solid #b6e3c4;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.retry-save-button {
+  appearance: none;
+  background-color: #fff1ef;
+  color: #b3261e;
+  border: 1px solid #f5c4be;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.retry-save-button:hover {
+  background-color: #ffe1dd;
+}
