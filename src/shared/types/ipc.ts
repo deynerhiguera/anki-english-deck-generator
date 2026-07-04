@@ -9,8 +9,6 @@ export const IPC = {
   ANKI_ADD_NOTE: 'anki:addNote',
   CARD_GENERATE: 'card:generate',
   CARD_GENERATE_PROGRESS: 'card:generate:progress',
-  CARD_GENERATE_FROM_SELECTION: 'card:generate:fromSelection',
-  SELECTION_CAPTURE_ERROR: 'card:selectionCapture:error',
 } as const;
 
 export type IpcChannel = (typeof IPC)[keyof typeof IPC];
@@ -73,17 +71,6 @@ export interface CardGenerateResponse {
   error?: string;
 }
 
-export interface SelectionCaptureEvent {
-  text: string;
-  source: 'shortcut';
-  capturedAt: number;
-}
-
-export interface SelectionCaptureError {
-  reason: 'empty' | 'no-selection' | 'permission' | 'unsupported' | 'error';
-  message: string;
-}
-
 export interface RendererApi {
   app: {
     ready(): Promise<AppReadyResponse>;
@@ -97,7 +84,5 @@ export interface RendererApi {
   card: {
     generate(req: CardGenerateRequest): Promise<CardGenerateResponse>;
     onProgress(cb: (event: ProgressEvent) => void): () => void;
-    onGenerateFromSelection(cb: (event: SelectionCaptureEvent) => void): () => void;
-    onSelectionCaptureError(cb: (event: SelectionCaptureError) => void): () => void;
   };
 }

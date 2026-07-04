@@ -2,6 +2,7 @@ import { resolve } from 'node:path';
 import type { Card } from '@shared/domain/Card';
 import { DefaultCardValidator, type CardValidator } from '@shared/domain/CardValidator';
 import {
+  AnkiAddNoteError,
   AppError,
   ValidationError,
 } from '@shared/domain/errors';
@@ -181,7 +182,7 @@ export class CardBuilder {
       });
 
       if (noteId === null) {
-        throw new Error(
+        throw new AnkiAddNoteError(
           'Anki rejected the note (returned null). A note with this word may already exist in the deck.',
         );
       }

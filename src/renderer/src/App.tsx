@@ -7,7 +7,6 @@ import { CardPreview } from '@renderer/components/CardPreview/CardPreview';
 import { Toast, type ToastState } from '@renderer/components/Toast/Toast';
 import { SelectionCaptureHint } from '@renderer/components/SelectionCaptureHint/SelectionCaptureHint';
 import { useCardBuilder, type BuildSlot } from '@renderer/hooks/useCardBuilder';
-import { looksLikeWord } from '@renderer/utils/wordShape';
 import './styles/globals.css';
 
 function truncateError(msg: string, max = 140): string {
@@ -29,25 +28,6 @@ function App(): JSX.Element {
       cancelled = true;
     };
   }, []);
-
-  useEffect(() => {
-    const offSelection = window.ankiBuilder.card.onGenerateFromSelection((evt) => {
-      if (!evt.text) return;
-      const check = looksLikeWord(evt.text);
-      if (!check.ok) {
-        setToast({ kind: 'error', message: check.message ?? 'Invalid selection.' });
-        return;
-      }
-      builder.addWord(evt.text);
-    });
-    const offError = window.ankiBuilder.card.onSelectionCaptureError((evt) => {
-      setToast({ kind: 'error', message: evt.message });
-    });
-    return () => {
-      offSelection();
-      offError();
-    };
-  }, [builder]);
 
   useEffect(() => {
     const okCount = builder.queue.filter((s) => s.status === 'done' && s.noteId !== undefined).length;
@@ -144,7 +124,7 @@ function App(): JSX.Element {
         )}
 
         <div className="phase-banner">
-          <strong>Phase 4 — Selection capture.</strong> Highlight any text on macOS and press <kbd>⌘⇧A</kbd> to start building a card. Every generated card is automatically added to Anki. Audio generated with nova voice, mirrored in <code>./media/</code>, copied to Anki's <code>collection.media/</code>.
+          <strong>Phase 4 — Background selection capture.</strong> Highlight any text anywhere on macOS and press <kbd>⌘⇧A</kbd>. A card is built and saved to Anki silently — no window focus, no UI changes, just a native macOS notification on the result. Audio generated with nova voice, mirrored in <code>./media/</code>, copied to Anki's <code>collection.media/</code>.
         </div>
       </main>
       <Toast toast={toast} onDismiss={() => setToast(null)} />

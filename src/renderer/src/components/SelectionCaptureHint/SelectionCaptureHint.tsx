@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { SELECTION_CAPTURE_SHORTCUT } from '@shared/constants';
 import './SelectionCaptureHint.css';
 
@@ -21,16 +21,6 @@ function platformSupported(): boolean {
 export function SelectionCaptureHint(): JSX.Element | null {
   const [isMac] = useState<boolean>(platformSupported);
   const [shortcut] = useState<string>(formatShortcut(SELECTION_CAPTURE_SHORTCUT));
-  const [needsPermission, setNeedsPermission] = useState(false);
-
-  useEffect(() => {
-    const off = window.ankiBuilder.card.onSelectionCaptureError((evt) => {
-      if (evt.reason === 'permission') {
-        setNeedsPermission(true);
-      }
-    });
-    return off;
-  }, []);
 
   if (!isMac) {
     return (
@@ -41,19 +31,11 @@ export function SelectionCaptureHint(): JSX.Element | null {
   }
 
   return (
-    <div
-      className={`selection-hint${needsPermission ? ' selection-hint-warn' : ''}`}
-    >
+    <div className="selection-hint">
       <span className="selection-hint-kbd">{shortcut}</span>
       <span className="selection-hint-text">
-        Highlight any text on your Mac and press {shortcut} to start building a card.
+        Highlight any text anywhere on your Mac and press {shortcut} — a card is built and saved to Anki silently in the background. A native macOS notification confirms the result.
       </span>
-      {needsPermission && (
-        <span className="selection-hint-perm">
-          macOS Accessibility permission is required. Grant it in
-          System Settings → Privacy & Security → Accessibility, then retry.
-        </span>
-      )}
     </div>
   );
 }

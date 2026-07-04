@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ipcMain, BrowserWindow, app, globalShortcut } from 'electron';
+import { ipcMain, BrowserWindow, app, globalShortcut, Notification } from 'electron';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 import {
@@ -13,11 +13,10 @@ import {
   type AppReadyResponse,
   type CardGenerateRequest,
   type CardGenerateResponse,
-  type SelectionCaptureError,
-  type SelectionCaptureEvent,
 } from '@shared/types/ipc';
 import type { ProgressEvent } from '@shared/types/progress';
 import { APP_NAME, APP_VERSION, SELECTION_CAPTURE_SHORTCUT } from '@shared/constants';
+import { looksLikeWord } from '@shared/utils/wordShape';
 import { loadEnv } from '../config/env';
 import { AnkiClient } from '../infrastructure/anki/AnkiClient';
 import { OpenAIClient } from '../infrastructure/openai/OpenAIClient';
@@ -92,44 +91,104 @@ function sendProgress(win: BrowserWindow, event: ProgressEvent): void {
   }
 }
 
-function sendSelectionCapture(win: BrowserWindow, event: SelectionCaptureEvent): void {
-  if (!win.isDestroyed()) {
-    win.webContents.send(IPC.CARD_GENERATE_FROM_SELECTION, event);
+function showNotification(opts: { title: string; body: string }): void {
+  if (!Notification.isSupported()) {
+    logger.warn('[notify-fallback]', opts.title, '—', opts.body);
+    return;
+  }
+  new Notification({
+    title: opts.title,
+    body: opts.body,
+    silent: false,
+  }).show();
+}
+
+async function buildSilently(word: string): Promise<void> {
+  try {
+    const builder = getCardBuilder();
+    const card = await builder.build(word, (stage, ok, message) => {
+      logger.info(`[silent:${word}] ${stage} ${ok ? 'ok' : 'fail'} ${message ?? ''}`);
+    });
+
+    logger.info('[silent] saved:', card.word, 'noteId:', card.noteId);
+    showNotification({
+      title: `Saved: ${card.word}`,
+      body: card.meaning,
+    });
+  } catch (err) {
+    const reason = humanizeError(err);
+    logger.warn('[silent] failed:', word, '—', reason);
+
+    if (err instanceof AnkiAddNoteError && /duplicate/i.test(err.message)) {
+      showNotification({
+        title: `Duplicate: ${word}`,
+        body: 'Already in your Anki deck — nothing to do.',
+      });
+      return;
+    }
+    if (err instanceof AnkiNotRunningError) {
+      showNotification({
+        title: 'Anki not running',
+        body: `Could not save "${word}". Open Anki with the AnkiConnect plugin enabled, then press ⌘⇧A again.`,
+      });
+      return;
+    }
+    if (err instanceof AnkiModelNotFoundError) {
+      showNotification({
+        title: 'Anki model not found',
+        body: err.message,
+      });
+      return;
+    }
+    if (err instanceof ValidationError) {
+      showNotification({
+        title: `Couldn't build: ${word}`,
+        body: reason,
+      });
+      return;
+    }
+    if (err instanceof OpenAIAuthError) {
+      showNotification({
+        title: 'OpenAI rejected the API key',
+        body: 'Check OPENAI_API_KEY in your .env file.',
+      });
+      return;
+    }
+
+    showNotification({
+      title: `Failed: ${word}`,
+      body: reason,
+    });
   }
 }
 
-function sendSelectionCaptureError(win: BrowserWindow, event: SelectionCaptureError): void {
-  if (!win.isDestroyed()) {
-    win.webContents.send(IPC.SELECTION_CAPTURE_ERROR, event);
-  }
-}
-
-async function handleSelectionCapture(win: BrowserWindow): Promise<void> {
-  if (win.isDestroyed()) return;
-
+async function handleSelectionCapture(_win: BrowserWindow): Promise<void> {
   const result = await captureSelectedText();
 
-  if (win.isDestroyed()) return;
-
-  if (win.isMinimized()) win.restore();
-  if (!win.isVisible()) win.show();
-  app.focus({ steal: true });
-
-  if (result.text) {
-    logger.info('Selection captured via', result.method ?? '?', ':', result.text.slice(0, 60));
-    sendSelectionCapture(win, {
-      text: result.text,
-      source: 'shortcut',
-      capturedAt: Date.now(),
+  if (!result.text) {
+    showNotification({
+      title: 'No selection captured',
+      body: result.message ?? 'Highlight some text, then press the shortcut.',
     });
     return;
   }
 
-  const reason: SelectionCaptureError['reason'] = result.reason ?? 'error';
-  sendSelectionCaptureError(win, {
-    reason,
-    message: result.message ?? 'Could not capture selection.',
-  });
+  const check = looksLikeWord(result.text);
+  if (!check.ok) {
+    showNotification({
+      title: 'Not a vocabulary word',
+      body: check.message ?? 'Highlight a single word or short phrase.',
+    });
+    return;
+  }
+
+  logger.info(
+    '[silent] selection captured via',
+    result.method ?? '?',
+    ':',
+    result.text.slice(0, 60),
+  );
+  void buildSilently(result.text);
 }
 
 let selectionShortcutRegistered = false;

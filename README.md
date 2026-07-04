@@ -78,14 +78,14 @@ Steps:
 
 Phase 0 — foundation.
 
-## Selection capture (macOS)
+## Background selection capture (macOS)
 
-Highlight any text in any app, then press **⌘⇧A** (Cmd+Shift+A) to start building a card from it. The window comes to the front, the captured text is added to the queue, and the existing pipeline generates the card and auto-saves it to Anki.
+Highlight any text in any app, then press **⌘⇧A** (Cmd+Shift+A). The app runs entirely in the background — no window focus, no UI changes. The card is generated, saved to Anki, and a native macOS notification confirms the result.
 
 How it works:
 
-- `main/utils/selection.ts` sends a synthetic `Cmd+C` via `osascript`, reads the clipboard, and restores the previous clipboard contents.
-- The main process broadcasts the captured text to the renderer over IPC (`CARD_GENERATE_FROM_SELECTION`).
-- The renderer feeds the text to `useCardBuilder.addWord(...)` and reuses the same progress + auto-save flow as the manual input.
+- `src/main/utils/selection.ts` captures the selection via a 3-strategy waterfall: `AXSelectedText` (accessibility API), then synthetic `Cmd+C` via `keystroke`, then synthetic `Cmd+C` via `key code 8`. A clipboard sentinel detects when the synthetic copy silently failed, preventing stale-clipboard false positives.
+- `src/main/ipc/register.ts` runs the full build pipeline directly in the main process (no IPC round-trip to the renderer), then shows a native macOS notification (`Notification` API) with the result.
+- The renderer is untouched during the build — the app stays in the background while you're reading, working, or watching a video.
 
-First-time setup on macOS: grant Accessibility permission to the Electron-built app under **System Settings → Privacy & Security → Accessibility**. The hint banner inside the app surfaces this when the OS blocks the synthetic keystroke.
+First-time setup on macOS: grant Accessibility permission to the Electron-built app under **System Settings → Privacy & Security → Accessibility**. Without it, the synthetic `Cmd+C` and accessibility read both fail and you'll get a *"No selection captured"* notification.
