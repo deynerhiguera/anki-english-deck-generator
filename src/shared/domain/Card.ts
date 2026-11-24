@@ -5,6 +5,8 @@ export interface Card {
   example: string;
   cloze: string;
   soundFilename: string;
+  /** Audio of the word alone (Anki 'Sound' field). Optional for older cards. */
+  wordSoundFilename?: string;
   noteId?: number;
 }
 
@@ -17,5 +19,6 @@ export const CARD_FIELDS: readonly CardField[] = [
   'example',
   'cloze',
   'soundFilename',
+  'wordSoundFilename',
   'noteId',
 ] as const;

@@ -36,7 +36,7 @@ export class AnkiFieldMapper {
     };
 
     setIfPresent('Word', card.word);
-    setIfPresent('Sound', '');
+    setIfPresent('Sound', card.wordSoundFilename ? `[sound:${card.wordSoundFilename}]` : '');
     setIfPresent('Sound_Example', `[sound:${card.soundFilename}]`);
     setIfPresent('Meaning', card.meaning);
     setIfPresent('Example', card.example);
