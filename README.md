@@ -1,8 +1,22 @@
 # Personal AI Anki Builder
 
-Local-first desktop app that generates Anki cards following a personal learning methodology.
+Highlight any English word on your Mac, press **⌘⇧A**, and a complete Anki card appears in your deck: IPA, an English meaning, a natural example sentence about *your* life, a fill-in-the-blank, and audio.
 
-Runs as an Electron app on macOS. All processing is local. No deployment. No auth. No cloud-only backend.
+<!-- TODO: add demo GIF here: docs/demo.gif -->
+
+## Why I built this
+
+I'm a software developer from Colombia learning English. Making good cards by hand was slow, and dictionary examples never sounded like things I would actually say. So I wrote my learning method down as docs (`docs/card-philosophy.md`) and built an app that follows it on every card.
+
+## How it works
+
+1. **Capture**: `⌘⇧A` reads the selected text from any app (macOS Accessibility, with a clipboard fallback that restores your clipboard).
+2. **Generate**: GPT-4o writes the card as strict JSON, guided by the methodology docs.
+3. **Validate**: ~29 quality rules (word count, no Spanish, valid IPA, exactly one blank…). Hard failures are sent back to the model as feedback and it retries.
+4. **Audio**: OpenAI TTS creates audio for the word and for the example sentence.
+5. **Save**: the card goes to Anki through AnkiConnect, with duplicate detection and a native notification.
+
+Local-first: your cards and audio live on your Mac, and there is no backend, deployment or account. The only network calls are to the OpenAI API (content + audio) and to AnkiConnect on localhost.
 
 ## Stack
 
@@ -76,7 +90,11 @@ Steps:
 
 ## Status
 
-Phase 0 — foundation.
+Working daily driver on macOS. Ideas next: Windows/Linux support, choosing the deck from the UI, other target languages.
+
+## License
+
+MIT. See `LICENSE`.
 
 ## Running in the background (no VS Code, no terminal kept open)
 

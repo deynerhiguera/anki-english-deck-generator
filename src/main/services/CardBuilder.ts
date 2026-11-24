@@ -76,6 +76,7 @@ export class CardBuilder {
     const normalized = this.normalizeWord(word);
     const stamp = Date.now();
     const soundFilename = this.buildFilename(normalized, stamp);
+    const wordSoundFilename = this.buildFilename(`${normalized}-word`, stamp);
 
     let lastResult: { ipa: string; meaning: string; example: string; cloze: string } | null = null;
     let lastFeedback: string | undefined;
@@ -97,6 +98,7 @@ export class CardBuilder {
           example: draft.example,
           cloze: clozen,
           soundFilename,
+          wordSoundFilename,
         };
 
         const validation = this.validator.validate(card);
@@ -121,6 +123,7 @@ export class CardBuilder {
         example: lastResult.example,
         cloze: this.ensureCloze(lastResult.example, normalized, lastResult.cloze),
         soundFilename,
+        wordSoundFilename,
       };
       try {
         const finalized = await this.runAudioAndStorage(card, onProgress);
@@ -145,22 +148,32 @@ export class CardBuilder {
 
   private async runAudioAndStorage(card: Card, onProgress?: CardBuildProgress): Promise<Card> {
     onProgress?.('audio:word', true);
-    await this.openai.generateSpeech(card.word, this.tts);
+    const wordAudio = await this.openai.generateSpeech(card.word, this.tts);
 
     onProgress?.('audio:example', true);
     const exampleAudio = await this.openai.generateSpeech(card.example, this.tts);
 
     onProgress?.('storage', true);
     await this.audioStorage.save(card.soundFilename, exampleAudio);
+    if (card.wordSoundFilename) {
+      await this.audioStorage.save(card.wordSoundFilename, wordAudio);
+    }
 
     onProgress?.('media-sync', true);
-    const exists = await this.mediaSync.exists(card.soundFilename);
-    if (!exists) {
-      const localPath = resolve(this.audioStorage.pathFor(card.soundFilename));
-      await this.mediaSync.copyFrom(localPath, card.soundFilename);
+    await this.syncToAnkiMedia(card.soundFilename);
+    if (card.wordSoundFilename) {
+      await this.syncToAnkiMedia(card.wordSoundFilename);
     }
 
     return card;
+  }
+
+  private async syncToAnkiMedia(filename: string): Promise<void> {
+    const exists = await this.mediaSync.exists(filename);
+    if (!exists) {
+      const localPath = resolve(this.audioStorage.pathFor(filename));
+      await this.mediaSync.copyFrom(localPath, filename);
+    }
   }
 
   private async runAnkiSave(card: Card, onProgress?: CardBuildProgress): Promise<Card> {
